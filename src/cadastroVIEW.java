@@ -7,6 +7,13 @@
  *
  * @author Adm
  */
+import java.awt.HeadlessException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 public class cadastroVIEW extends javax.swing.JFrame {
 
     /**
@@ -140,17 +147,26 @@ public class cadastroVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_cadastroNomeActionPerformed
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
-        ProdutosDTO produto = new ProdutosDTO();
-        String nome = cadastroNome.getText();
-        String valor = cadastroValor.getText();
-        String status = "A Venda";
-        produto.setNome(nome);
-        produto.setValor(Integer.parseInt(valor));
-        produto.setStatus(status);
-        
-        ProdutosDAO produtodao = new ProdutosDAO();
-        produtodao.cadastrarProduto(produto);
-        
+       try {
+           try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/uc11", "root", "1234")) {
+               String sql = "INSERT INTO produtos (nome, valor, status) VALUES (?, ?, ?)";
+               try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                   stmt.setString(1, cadastroNome.getText());
+                   stmt.setInt(2, Integer.parseInt(cadastroValor.getText()));
+                   stmt.setString(3, "A Venda");
+                   
+                   int linhasAfetadas = stmt.executeUpdate();
+                   if (linhasAfetadas > 0) {
+                       JOptionPane.showMessageDialog(null, "Produto cadastrado com sucesso!");
+                   } else {
+                       JOptionPane.showMessageDialog(null, "Falha ao cadastrar o produto.");
+                   }
+               }
+           }
+} catch (HeadlessException | NumberFormatException | SQLException e) {
+    JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
+}
+
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     private void btnProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProdutosActionPerformed

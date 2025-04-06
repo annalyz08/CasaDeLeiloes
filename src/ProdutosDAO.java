@@ -57,8 +57,46 @@ public class ProdutosDAO {
         return lista;
     }
     
-    
-    
+    public void venderProduto(int id) {
+    try {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/uc11", "root", "1234");
+        String sql = "UPDATE produtos SET status = 'Vendido' WHERE id = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, id);
+        stmt.executeUpdate();
+        stmt.close();
+        conn.close();
+        JOptionPane.showMessageDialog(null, "Produto vendido com sucesso!");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
+    }
+}
+
+   public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+    ArrayList<ProdutosDTO> lista = new ArrayList<>();
+    try {
+        Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/uc11", "root", "1234");
+        String sql = "SELECT * FROM produtos WHERE status = 'Vendido'";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            ProdutosDTO produto = new ProdutosDTO();
+            produto.setId(rs.getInt("id"));
+            produto.setNome(rs.getString("nome"));
+            produto.setValor(rs.getDouble("valor"));
+            produto.setStatus(rs.getString("status"));
+            lista.add(produto);
+        }
+
+        stmt.close();
+        conn.close();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
+    }
+    return lista;
+}
+ 
         
 }
 
